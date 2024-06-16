@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -35,8 +37,8 @@ var toddlers = Class{John, Emma, David}
 func main() {
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("/class", checkAuth(processNote))
-
+	mux.HandleFunc("/class", checkAuth(processClass))
+	mux.HandleFunc("/student/", checkAuth(processStudent))
 	err := http.ListenAndServe(":8080", mux)
 	if err != nil {
 		fmt.Println("Error happened", err.Error())
@@ -45,16 +47,19 @@ func main() {
 
 }
 
-func processNote(w http.ResponseWriter, r *http.Request) {
+func processClass(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		getNote(w, r)
-		// case http.MethodPut:
-		// 	putNote(w, r)
+		getClass(w, r)
 	}
 }
-
-func getNote(w http.ResponseWriter, r *http.Request) {
+func processStudent(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		getStudent(w, r)
+	}
+}
+func getClass(w http.ResponseWriter, r *http.Request) {
 	err := json.NewEncoder(w).Encode(toddlers)
 	if err != nil {
 		fmt.Println(err.Error())
@@ -63,21 +68,30 @@ func getNote(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-//	func putNote(w http.ResponseWriter, r *http.Request) {
-//		err := json.NewDecoder(r.Body).Decode(&John)
-//		if err != nil {
-//			fmt.Println(err.Error())
-//			w.WriteHeader(http.StatusBadRequest)
-//			return
-//		}
-//		John.UpdatedAt = time.Now()
-//		err = json.NewEncoder(w).Encode(John)
-//		if err != nil {
-//			fmt.Println(err.Error())
-//			w.WriteHeader(http.StatusInternalServerError)
-//			return
-//		}
-//	}
+func getStudent(w http.ResponseWriter, r *http.Request) {
+	searchingId := strings.TrimPrefix(r.URL.Path, "/student/")
+	id, err := strconv.Atoi(searchingId)
+
+	if err != nil {
+		fmt.Println(err.Error())
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	for _, student := range toddlers {
+		if student.Id == id {
+			err := json.NewEncoder(w).Encode(student)
+
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+			}
+			return
+		}
+	}
+	fmt.Println("студент не знайден")
+	w.WriteHeader(http.StatusNotFound)
+}
+
 type User struct {
 	Name string
 	Role string
