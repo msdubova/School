@@ -93,13 +93,13 @@ func getStudent(w http.ResponseWriter, r *http.Request) {
 }
 
 type User struct {
-	Name string
-	Role string
+	Name     string
+	Password string
 }
 
 var teacher = User{
-	Name: "MrBond",
-	Role: "teacher",
+	Name:     "MrBond",
+	Password: "teacher",
 }
 
 func checkAuth(next http.HandlerFunc) http.HandlerFunc {
@@ -110,7 +110,7 @@ func checkAuth(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		if teacher.Name != name || teacher.Role != role {
+		if teacher.Name != name || teacher.Password != role {
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
