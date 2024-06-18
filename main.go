@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"strings"
 	"time"
 )
 
@@ -37,9 +36,10 @@ var toddlers = Class{John, Emma, David}
 func main() {
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("/class", checkAuth(processClass))
-	mux.HandleFunc("/student/", checkAuth(processStudent))
+	mux.HandleFunc("GET /class", checkAuth(processClass))
+	mux.HandleFunc("GET /student/{id}", checkAuth(processStudent))
 	err := http.ListenAndServe(":8080", mux)
+
 	if err != nil {
 		fmt.Println("Error happened", err.Error())
 		return
@@ -69,7 +69,7 @@ func getClass(w http.ResponseWriter, r *http.Request) {
 }
 
 func getStudent(w http.ResponseWriter, r *http.Request) {
-	searchingId := strings.TrimPrefix(r.URL.Path, "/student/")
+	searchingId := r.PathValue("id")
 	id, err := strconv.Atoi(searchingId)
 
 	if err != nil {
