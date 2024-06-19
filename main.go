@@ -36,8 +36,8 @@ var toddlers = Class{John, Emma, David}
 func main() {
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("GET /class", checkAuth(processClass))
-	mux.HandleFunc("GET /student/{id}", checkAuth(processStudent))
+	mux.HandleFunc("GET /class", checkAuth(getClass))
+	mux.HandleFunc("GET /student/{id}", checkAuth(getStudent))
 	err := http.ListenAndServe(":8080", mux)
 
 	if err != nil {
@@ -47,18 +47,19 @@ func main() {
 
 }
 
-func processClass(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case http.MethodGet:
-		getClass(w, r)
-	}
-}
-func processStudent(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case http.MethodGet:
-		getStudent(w, r)
-	}
-}
+//	func processClass(w http.ResponseWriter, r *http.Request) {
+//		switch r.Method {
+//		case http.MethodGet:
+//			getClass(w, r)
+//		}
+//	}
+//
+//	func processStudent(w http.ResponseWriter, r *http.Request) {
+//		switch r.Method {
+//		case http.MethodGet:
+//			getStudent(w, r)
+//		}
+//	}
 func getClass(w http.ResponseWriter, r *http.Request) {
 	err := json.NewEncoder(w).Encode(toddlers)
 	if err != nil {
